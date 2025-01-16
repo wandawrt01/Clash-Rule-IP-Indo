@@ -1,0 +1,63 @@
+name: Process NICE RSC
+
+on:
+  schedule:
+    - cron: "00 18 * * *" # 1:00 GMT+7
+  workflow_dispatch:
+
+jobs:
+  process-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download nice.rsc file
+        run: |
+          rm -f README.md
+          curl -o nice.rsc http://ixp.mikrotik.co.id/download/nice.rsc
+          echo "Downloaded nice.rsc:"
+          cat nice.rsc
+
+      - name: Filter and replace comments from nice.rsc
+        run: |
+          echo "Filtering and replacing comments from nice.rsc"
+          grep '^#' nice.rsc | sed 's/^#/-/' > nice_comments.txt
+
+      - name: Append comments from nice.rsc to README.md
+        run: |
+          echo "Appending comments from nice.rsc to README.md"
+          cat nice_comments.txt >> README.md
+
+      - name: Process the nice.rsc file
+        run: |
+          echo "Processing nice.rsc..."
+          output_file="rule-indo.yaml"
+          > $output_file  # Create or empty the file
+
+          echo "payload:" >> $output_file  # Add "payload:" at the beginning of the file
+
+          # Ensuring we read the file line by line
+          while IFS= read -r line; do
+            echo "Processing line: $line"  # Debugging line
+            # Matching the pattern add list=nice address="IP/CIDR"
+            if [[ $line =~ add\ list=nice\ address=\"([0-9./]+)\" ]]; then
+              ip_cidr="${BASH_REMATCH[1]}"
+              echo "Matched IP-CIDR: $ip_cidr"  # Debugging line
+              echo "- IP-CIDR,$ip_cidr" >> $output_file  # Adding "-" before each IP-CIDR
+            fi
+          done < nice.rsc
+
+          echo "Contents of processed_nice.txt:"
+          cat $output_file  # Output the content for debugging
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add nice.rsc
+          git add rule-indo.yaml
+          git add README.md
+          git commit -m "Auto Update $(date +'%Y-%m-%d %H:%M:%S')"
+          git push
