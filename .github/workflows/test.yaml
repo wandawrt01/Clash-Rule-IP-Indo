@@ -31,7 +31,7 @@ jobs:
           while IFS= read -r line; do
             echo "Processing line: $line"  # Debugging line
             # Matching the pattern "IP/CIDR"
-            if [[ $line =~ \"([0-9./]+)\" ]]; then
+            if [[ $line =~ "([0-9./]+)" ]]; then
               ip_cidr="${BASH_REMATCH[1]}"
               echo "Matched IP-CIDR: $ip_cidr"  # Debugging line
               echo "- IP-CIDR,$ip_cidr" >> $output_file  # Adding "-" before each IP-CIDR
