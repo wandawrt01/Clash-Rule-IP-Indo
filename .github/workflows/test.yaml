@@ -30,14 +30,11 @@ jobs:
           # Ensuring we read the file line by line
           while IFS= read -r line; do
             echo "Processing line: $line"  # Debugging line
-            # Matching the pattern "IP/CIDR"
-              ip_cidr="IP.Indonesia.list"
-              echo "Matched IP-CIDR: $ip_cidr"  # Debugging line
-              echo "- IP-CIDR,$ip_cidr" >> $output_file  # Adding "-" before each IP-CIDR
-            fi
+            # Adding "- IP-CIDR," before each IP-CIDR
+            echo "- IP-CIDR,$line" >> $output_file
           done < IP.Indonesia.list
 
-          echo "Contents of processed_IP.Indonesia.txt:"
+          echo "Contents of rule-ip-indo.yaml:"
           cat $output_file  # Output the content for debugging
 
       - name: Commit changes
