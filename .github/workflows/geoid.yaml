@@ -2,7 +2,7 @@ name: Process IP Indonesia List
 
 on:
   schedule:
-    - cron: "10 04 * * *"
+    - cron: "00 18 * * *" # 1:00 GMT+7
   workflow_dispatch:
 
 jobs:
